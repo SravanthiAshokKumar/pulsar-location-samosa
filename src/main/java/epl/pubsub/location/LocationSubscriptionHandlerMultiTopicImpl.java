@@ -6,7 +6,7 @@ import java.util.List;
 import epl.pubsub.location.pulsarclient.SubscriptionChangedCallback;
 
 
-public class LocationSubscriptionHandlerMultiTopicImpl implements LocationChangedCallback, LocationSubscriptionHandler<List<String>> {
+public class LocationSubscriptionHandlerMultiTopicImpl implements  LocationSubscriptionHandler<List<String>> {
 
     private Index index;
     private SubscriptionChangedCallback<List<String>> callback;
