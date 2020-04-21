@@ -15,7 +15,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
+    private static final Logger log = LoggerFactory.getLogger(PulsarLocationConsumerImpl.class);
 
     private Consumer<byte[]> currentConsumer;
     private ConsumerBuilder<byte[]> currentConsumerBuilder;
@@ -74,6 +78,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
 
     @Override
     public void onSubscriptionChange(List<String> oldTopics, List<String> newTopics){
+        log.info("received topic switch event");
         switchTopic(newTopics);
         TopicSwitchTask task = new TopicSwitchTask();
         executor.execute(task);

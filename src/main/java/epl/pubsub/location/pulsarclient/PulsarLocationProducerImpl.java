@@ -17,9 +17,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class PulsarLocationProducerImpl implements  PulsarLocationProducer{
-
-
+    private static final Logger log = LoggerFactory.getLogger(PulsarLocationProducerImpl.class);
+    
     private Producer<byte[]> currentProducer;
     private ProducerBuilder<byte[]> currentProducerBuilder;
 
@@ -80,6 +83,7 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
 
     @Override
     public void onSubscriptionChange(String oldTopic, String newTopic){
+        log.info("received subscription change event frm {} to {}", oldTopic, newTopic);
         TopicSwitchTask task = new TopicSwitchTask();
         switchTopic(newTopic);
         executor.execute(task);

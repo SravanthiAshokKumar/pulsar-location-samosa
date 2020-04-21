@@ -48,9 +48,11 @@ public class LocationProducerTest
             client.initClient(pulsarConfig);
         
             PulsarLocationProducer producer = client.getNewProducer();
-            producer.start("test");
+            producer.start("testtopic");
             producer.sendMessage(new String("testmsg").getBytes());
+            producer.shutdown();
             assertTrue( true );
+            
         }
         catch(IOException ex){
             System.out.println(ex.getMessage());
