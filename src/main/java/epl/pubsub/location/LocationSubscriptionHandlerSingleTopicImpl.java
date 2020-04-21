@@ -4,7 +4,7 @@ import epl.pubsub.location.indexperf.Index;
 import epl.pubsub.location.pulsarclient.SubscriptionChangedCallback;
 
 
-class LocationSubscriptionHandlerSingleTopicImpl implements LocationChangedCallback, LocationSubscriptionHandler<String> {
+public class LocationSubscriptionHandlerSingleTopicImpl implements LocationChangedCallback, LocationSubscriptionHandler<String> {
 
     private Index index;
     private SubscriptionChangedCallback<String> callback;
