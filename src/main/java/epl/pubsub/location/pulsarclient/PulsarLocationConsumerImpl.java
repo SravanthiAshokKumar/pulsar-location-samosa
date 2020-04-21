@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
 
-class PulsarLocationConsumerImpl implements SubscriptionChangedCallback<List<String>>, PulsarLocationConsumer {
+class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
 
     private Consumer<byte[]> currentConsumer;
     private ConsumerBuilder<byte[]> currentConsumerBuilder;

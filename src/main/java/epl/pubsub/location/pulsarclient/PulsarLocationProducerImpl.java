@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-class PulsarLocationProducerImpl implements SubscriptionChangedCallback<String>, PulsarLocationProducer{
+class PulsarLocationProducerImpl implements  PulsarLocationProducer{
 
 
     private Producer<byte[]> currentProducer;

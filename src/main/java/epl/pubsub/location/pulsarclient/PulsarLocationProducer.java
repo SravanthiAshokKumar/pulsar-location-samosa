@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import java.util.List;
 
-public interface PulsarLocationProducer {
+public interface PulsarLocationProducer extends SubscriptionChangedCallback<String>{
 
     public void start(String topic);
     
