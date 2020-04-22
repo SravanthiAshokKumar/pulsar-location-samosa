@@ -37,6 +37,7 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
 
     private String currentTopic;
     private String newTopic;
+    private String topicPrefix;
 
     private ProducerMetrics producerMetrics = new ProducerMetrics();
     private boolean  disableMetrics = false;
@@ -48,9 +49,10 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
 
     ExecutorService executor;
 
-    public PulsarLocationProducerImpl(PulsarClient client, PulsarProducerConfig config){
+    public PulsarLocationProducerImpl(PulsarClient client, PulsarProducerConfig config, String topicPrefix){
         this.client = client;
         this.config = config;
+        this.topicPrefix = topicPrefix;
         isTransitioning.set(false);
         executor = Executors.newSingleThreadExecutor();
         latencyAccumulator =  (x, y) -> x + y; 
@@ -75,8 +77,8 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     @Override
     public void start(String topic){
         currentProducerBuilder = createProducerBuilder();
-        currentTopic = topic;
-        newTopic = topic;
+        currentTopic = topicPrefix + "/" + topic;
+        newTopic = currentTopic;
         try {
             currentProducer = currentProducerBuilder.topic(topic).create();
             newProducerBuilder = currentProducerBuilder;
@@ -121,7 +123,8 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         isTransitioning.set(true);
         try{
             lock.lock();
-            currentTopic = newTopic;
+            currentTopic = topicPrefix + "/" + newTopic;
+            newTopic = currentTopic;
             newProducerBuilder = createProducerBuilder();
             newProducer = newProducerBuilder.topic(newTopic).create();
         }catch(PulsarClientException ex){

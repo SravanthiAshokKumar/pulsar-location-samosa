@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +51,14 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
 
     private boolean disableMetrics = false;
 
+    private String topicPrefix;
 
-    public PulsarLocationConsumerImpl(PulsarClient client){
+    public PulsarLocationConsumerImpl(PulsarClient client, String topicPrefix){
         this.client = client;
         latencyAccumulator = (x,y) -> x + y;
         maxValTester = (x,y) -> x > y ? x : y;
         executor = Executors.newSingleThreadExecutor();
+        this.topicPrefix = topicPrefix;
     }
 
     @Override
@@ -65,6 +68,10 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     }
 
     private ConsumerBuilder createConsumerBuilder(List<String> topics, String subscriptionName, MessageCallback cb) {
+        List<String> topicsToConsume = new ArrayList<>();
+        for(String topic: topics){
+            topicsToConsume.add(topicPrefix + "/" + topic);
+        }
         ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().subscriptionType(SubscriptionType.Failover).messageListener((consumer, msg) ->{
             if(!disableMetrics){
                 consumerMetrics.numMessagesConsumed.getAndIncrement();
@@ -74,7 +81,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
             }
             consumer.acknowledgeAsync(msg);
             cb.onMessageReceived(msg);
-        }).topics(topics).subscriptionName(subscriptionName);
+        }).topics(topicsToConsume).subscriptionName(subscriptionName);
 
         return consumerBuilder;
     }

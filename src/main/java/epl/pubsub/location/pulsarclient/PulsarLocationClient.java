@@ -12,6 +12,6 @@ public interface PulsarLocationClient{
     
     void createTopics(List<String> topics);
 
-    String getTopicNamePrefix();
+    String getTopicPrefix();
     
 }

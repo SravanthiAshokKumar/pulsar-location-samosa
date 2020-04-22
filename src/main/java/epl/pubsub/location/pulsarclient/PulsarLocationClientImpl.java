@@ -63,12 +63,12 @@ class PulsarLocationClientImpl implements PulsarLocationClient {
 
     @Override
     public PulsarLocationProducer getNewProducer(){
-        return new PulsarLocationProducerImpl(client, config.producerConfig);
+        return new PulsarLocationProducerImpl(client, config.producerConfig, getTopicPrefix());
     }    
     
     @Override
     public PulsarLocationConsumer getNewConsumer(){
-        return new PulsarLocationConsumerImpl(client);
+        return new PulsarLocationConsumerImpl(client, getTopicPrefix());
     }
 
     @Override
@@ -88,7 +88,7 @@ class PulsarLocationClientImpl implements PulsarLocationClient {
     }
 
     @Override
-    public String getTopicNamePrefix(){
+    public String getTopicPrefix(){
         return config.topicType+"://" + config.namespace;
     }
 
