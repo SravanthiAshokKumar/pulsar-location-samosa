@@ -125,19 +125,17 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     }
     
     @Override
-    public CompletableFuture<Void> sendMessage(byte[] payload) {
+    public void sendMessage(byte[] payload) {
         if(isTransitioning.get() == false){
-            return currentProducer.newMessage().value(payload).sendAsync().thenApply(msgId->null);
+            currentProducer.newMessage().value(payload).sendAsync().thenApply(msgId->null);
         }
         else {
-            CompletableFuture<Void> future;
             try{
                 lock.lock();
-                future = newProducer.newMessage().value(payload).sendAsync().thenApply(msgId->null);
+                newProducer.newMessage().value(payload).sendAsync().thenApply(msgId->null);
             } finally{
                 lock.unlock();
             }
-            return future;
         }
     }
     

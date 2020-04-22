@@ -10,6 +10,6 @@ public interface PulsarLocationProducer extends SubscriptionChangedCallback<Stri
     
     public void shutdown();
 
-    public CompletableFuture<Void> sendMessage(byte[] payload);
+    public void sendMessage(byte[] payload);
 
 }

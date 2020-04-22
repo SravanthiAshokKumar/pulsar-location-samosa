@@ -65,12 +65,12 @@ public class LocationConsumerTest
             client.initClient(pulsarConfig);
         
             PulsarLocationProducer producer = client.getNewProducer();
-            producer.start("testtopic");
+            producer.start("test");
             producer.sendMessage(testPayload.getBytes());
 //            producer.shutdown(); 
             PulsarLocationConsumer consumer  = client.getNewConsumer();
             List<String> topics = new ArrayList<>();
-            topics.add("testtopic");
+            topics.add("test");
             consumer.start(topics, "testSub", this);
             while(received.get() == false){
                 Thread.sleep(10);
