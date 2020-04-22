@@ -2,6 +2,7 @@ package epl.pubsub.location;
 
 import epl.pubsub.location.indexperf.Index;
 import java.util.List;
+import java.util.Arrays;
 
 import epl.pubsub.location.pulsarclient.SubscriptionChangedCallback;
 
@@ -27,8 +28,11 @@ public class LocationSubscriptionHandlerMultiTopicImpl implements  LocationSubsc
         log.info("multi topic location change");
         List<String> oldTopics = index.getNearestNeighbors(oldLocation.x, oldLocation.y);
         List<String> newTopics = index.getNearestNeighbors(newLocation.x, newLocation.y);
+        log.info(Arrays.toString(oldTopics.toArray())+ "|" +Arrays.toString(newTopics.toArray()));
         if(!oldTopics.equals(newTopics)){
+            log.info("making sub change");
             callback.onSubscriptionChange(oldTopics, newTopics);
+        
         }
     }
     
