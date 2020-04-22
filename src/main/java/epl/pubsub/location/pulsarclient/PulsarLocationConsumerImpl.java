@@ -65,6 +65,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
 
     private ConsumerBuilder createConsumerBuilder(List<String> topics, String subscriptionName, MessageCallback cb) {
         ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().subscriptionType(SubscriptionType.Failover).messageListener((consumer, msg) ->{
+            log.ino("received msg in consumer");
             if(!disableMetrics){
                 consumerMetrics.numMessagesConsumed.getAndIncrement();
                 long latency = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis() - msg.getPublishTime()) / 1000;
