@@ -41,10 +41,10 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     private ProducerMetrics producerMetrics = new ProducerMetrics();
     private boolean  disableMetrics = false;
 
-    ReentrantLock lock = new ReentrantLock();
-    AtomicBoolean isTransitioning = new AtomicBoolean();
-    LongBinaryOperator latencyAccumulator;
-    LongBinaryOperator maxValTester;
+    private ReentrantLock lock = new ReentrantLock();
+    private AtomicBoolean isTransitioning = new AtomicBoolean();
+    private LongBinaryOperator latencyAccumulator;
+    private LongBinaryOperator maxValTester;
 
     ExecutorService executor;
 

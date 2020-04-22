@@ -55,6 +55,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         this.client = client;
         latencyAccumulator = (x,y) -> x + y;
         maxValTester = (x,y) -> x > y ? x : y;
+        executor = Executors.newSingleThreadExecutor();
     }
 
     @Override
