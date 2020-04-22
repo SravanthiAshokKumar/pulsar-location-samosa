@@ -83,7 +83,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         currentTopics = topics;
         newTopics = topics;
         callback = cb;
-        subscriptionName = subscriptionName;
+        this.subscriptionName = subscriptionName;
         currentConsumerBuilder = createConsumerBuilder(topics, subscriptionName, cb);
         try {
             currentConsumer = currentConsumerBuilder.subscribeAsync().get();
