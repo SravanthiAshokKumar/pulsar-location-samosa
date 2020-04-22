@@ -69,7 +69,10 @@ public class LocationManagerImpl implements LocationManager, Runnable {
                         ex.printStackTrace();
                     }
                     prevLocationStr = locationStr;
-                      
+                    if(!isStarted.get()){
+                        br.close();
+                        break;
+                    } 
                 }
             } catch(FileNotFoundException ex){
                 System.out.println(ex.getMessage());
