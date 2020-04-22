@@ -7,6 +7,7 @@ import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 
+import org.apache.commons.lang3.time.StopWatch;
 
 import epl.pubsub.location.indexperf.Index;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongBinaryOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,12 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     private String currentTopic;
     private String newTopic;
 
+    private ProducerMetrics producerMetrics = new ProducerMetrics();
+
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean isTransitioning = new AtomicBoolean();
+    LongBinaryOperator latencyAccumulator;
+    LongBinaryOperator maxValTester;
 
     ExecutorService executor;
 
@@ -46,6 +52,8 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         this.config = config;
         isTransitioning.set(false);
         executor = Executors.newSingleThreadExecutor();
+        latencyAccumulator =  (x, y) -> x + y; 
+        maxValTester = (x, y) -> x > y ? x : y; 
     }
 
     private ProducerBuilder<byte[]> createProducerBuilder() {
@@ -85,7 +93,13 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     public void onSubscriptionChange(String oldTopic, String newTopic){
         log.info("received subscription change event frm {} to {}", oldTopic, newTopic);
         TopicSwitchTask task = new TopicSwitchTask();
+        StopWatch sw = new StopWatch();
+        sw.start();
         switchTopic(newTopic);
+        sw.stop();
+        producerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+        producerMetrics.numTopicChanges.getAndIncrement();   
+        producerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
         executor.execute(task);
     }
     private class TopicSwitchTask implements Runnable {
@@ -126,6 +140,8 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     
     @Override
     public void sendMessage(byte[] payload) {
+        StopWatch sw = new StopWatch();
+        sw.start();
         if(isTransitioning.get() == false){
             currentProducer.newMessage().value(payload).sendAsync().thenApply(msgId->null);
         }
@@ -137,6 +153,14 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
                 lock.unlock();
             }
         }
+        sw.stop();
+        producerMetrics.maxPublishLatency.getAndAccumulate(sw.getTime(), maxValTester);
+        producerMetrics.numMessagesPublished.getAndIncrement();
+        producerMetrics.aggregatePublishLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
     }
-    
+
+    @Override
+    public ProducerMetrics getProducerMetrics(){
+        return producerMetrics;
+    }    
 }

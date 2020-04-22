@@ -18,6 +18,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang3.time.StopWatch;
+
+import java.util.function.LongBinaryOperator;
+import java.util.concurrent.TimeUnit;
+
 class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     private static final Logger log = LoggerFactory.getLogger(PulsarLocationConsumerImpl.class);
 
@@ -32,20 +37,31 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     private List<String> currentTopics;
     private List<String> newTopics;
 
-    ReentrantLock lock = new ReentrantLock();
+    private ReentrantLock lock = new ReentrantLock();
 
-    ExecutorService executor;
+    private ExecutorService executor;
 
-    MessageCallback callback;
-    String subscriptionName;
+    private MessageCallback callback;
+    private String subscriptionName;
+
+    private ConsumerMetrics consumerMetrics = new ConsumerMetrics();
+    private LongBinaryOperator latencyAccumulator;
+    private LongBinaryOperator maxValTester;
 
     public PulsarLocationConsumerImpl(PulsarClient client){
         this.client = client;
+        latencyAccumulator = (x,y) -> x + y;
+        maxValTester = (x,y) -> x > y ? x : y;
     }
     private ConsumerBuilder createConsumerBuilder(List<String> topics, String subscriptionName, MessageCallback cb) {
         ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().subscriptionType(SubscriptionType.Failover).messageListener((consumer, msg) ->{
-            cb.onMessageReceived(msg);
+            consumerMetrics.numMessagesConsumed.getAndIncrement();
+            long latency = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis() - msg.getPublishTime()) / 1000;
+            consumerMetrics.aggregateEndToEndLatency.getAndAccumulate(latency, latencyAccumulator);
+            consumerMetrics.maxEndToEndLatency.getAndAccumulate(latency, maxValTester);
+
             consumer.acknowledgeAsync(msg);
+            cb.onMessageReceived(msg);
         }).topics(topics).subscriptionName(subscriptionName);
 
         return consumerBuilder;
@@ -79,7 +95,15 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     @Override
     public void onSubscriptionChange(List<String> oldTopics, List<String> newTopics){
         log.info("received topic switch event");
+        StopWatch sw = new StopWatch();
+        sw.start();
         switchTopic(newTopics);
+        sw.stop();
+
+        consumerMetrics.numTopicChanges.getAndIncrement();
+        consumerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+        consumerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
+
         TopicSwitchTask task = new TopicSwitchTask();
         executor.execute(task);
     }
@@ -112,5 +136,10 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
             ex.printStackTrace();
         }
         
+    }
+    
+    @Override
+    public ConsumerMetrics getConsumerMetrics(){
+        return consumerMetrics;
     }
 }

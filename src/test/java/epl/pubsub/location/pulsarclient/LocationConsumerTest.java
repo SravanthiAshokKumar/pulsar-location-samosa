@@ -76,8 +76,8 @@ public class LocationConsumerTest
                 Thread.sleep(10);
             }
             consumer.shutdown();
-            assertTrue( true );
-           
+
+                       
         }
         catch(IOException ex){
             System.out.println(ex.getMessage());

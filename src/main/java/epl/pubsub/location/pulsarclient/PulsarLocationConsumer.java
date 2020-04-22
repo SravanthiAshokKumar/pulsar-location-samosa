@@ -8,5 +8,6 @@ public interface PulsarLocationConsumer extends SubscriptionChangedCallback<List
 
     public void start(List<String> topic, String subscriptionName, MessageCallback onMessageReceived);
     public void shutdown();
-
+    
+    ConsumerMetrics getConsumerMetrics();
 }
