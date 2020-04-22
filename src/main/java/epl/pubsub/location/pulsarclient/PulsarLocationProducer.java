@@ -11,6 +11,8 @@ public interface PulsarLocationProducer extends SubscriptionChangedCallback<Stri
     public void shutdown();
 
     public void sendMessage(byte[] payload);
+    
+    public void disableMetricCollection();
 
     public ProducerMetrics getProducerMetrics();
 }

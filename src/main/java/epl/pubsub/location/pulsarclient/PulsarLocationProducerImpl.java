@@ -39,6 +39,7 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
     private String newTopic;
 
     private ProducerMetrics producerMetrics = new ProducerMetrics();
+    private boolean  disableMetrics = false;
 
     ReentrantLock lock = new ReentrantLock();
     AtomicBoolean isTransitioning = new AtomicBoolean();
@@ -54,6 +55,12 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         executor = Executors.newSingleThreadExecutor();
         latencyAccumulator =  (x, y) -> x + y; 
         maxValTester = (x, y) -> x > y ? x : y; 
+    }
+
+    @Override 
+    public void disableMetricCollection() {
+        disableMetrics = true;
+        log.info("disabled metrics");
     }
 
     private ProducerBuilder<byte[]> createProducerBuilder() {
@@ -97,9 +104,11 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         sw.start();
         switchTopic(newTopic);
         sw.stop();
-        producerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
-        producerMetrics.numTopicChanges.getAndIncrement();   
-        producerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
+        if(!disableMetrics){
+            producerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+            producerMetrics.numTopicChanges.getAndIncrement();   
+            producerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
+        }
         executor.execute(task);
     }
     private class TopicSwitchTask implements Runnable {
@@ -154,9 +163,11 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
             }
         }
         sw.stop();
-        producerMetrics.maxPublishLatency.getAndAccumulate(sw.getTime(), maxValTester);
-        producerMetrics.numMessagesPublished.getAndIncrement();
-        producerMetrics.aggregatePublishLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+        if(!disableMetrics){ 
+            producerMetrics.maxPublishLatency.getAndAccumulate(sw.getTime(), maxValTester);
+            producerMetrics.numMessagesPublished.getAndIncrement();
+            producerMetrics.aggregatePublishLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+        }
     }
 
     @Override

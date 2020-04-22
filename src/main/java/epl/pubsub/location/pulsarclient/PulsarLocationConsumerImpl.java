@@ -48,18 +48,29 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     private LongBinaryOperator latencyAccumulator;
     private LongBinaryOperator maxValTester;
 
+    private boolean disableMetrics = false;
+
+
     public PulsarLocationConsumerImpl(PulsarClient client){
         this.client = client;
         latencyAccumulator = (x,y) -> x + y;
         maxValTester = (x,y) -> x > y ? x : y;
     }
+
+    @Override
+    public void disableMetricCollection(){
+        disableMetrics = true;
+        log.info("disabled metrics");
+    }
+
     private ConsumerBuilder createConsumerBuilder(List<String> topics, String subscriptionName, MessageCallback cb) {
         ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().subscriptionType(SubscriptionType.Failover).messageListener((consumer, msg) ->{
-            consumerMetrics.numMessagesConsumed.getAndIncrement();
-            long latency = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis() - msg.getPublishTime()) / 1000;
-            consumerMetrics.aggregateEndToEndLatency.getAndAccumulate(latency, latencyAccumulator);
-            consumerMetrics.maxEndToEndLatency.getAndAccumulate(latency, maxValTester);
-
+            if(!disableMetrics){
+                consumerMetrics.numMessagesConsumed.getAndIncrement();
+                long latency = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis() - msg.getPublishTime()) / 1000;
+                consumerMetrics.aggregateEndToEndLatency.getAndAccumulate(latency, latencyAccumulator);
+                consumerMetrics.maxEndToEndLatency.getAndAccumulate(latency, maxValTester);
+            }
             consumer.acknowledgeAsync(msg);
             cb.onMessageReceived(msg);
         }).topics(topics).subscriptionName(subscriptionName);
@@ -99,11 +110,11 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         sw.start();
         switchTopic(newTopics);
         sw.stop();
-
-        consumerMetrics.numTopicChanges.getAndIncrement();
-        consumerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
-        consumerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
-
+        if(!disableMetrics){
+            consumerMetrics.numTopicChanges.getAndIncrement();
+            consumerMetrics.aggregateTopicChangeLatency.getAndAccumulate(sw.getTime(), latencyAccumulator);
+            consumerMetrics.maxTopicChangeLatency.getAndAccumulate(sw.getTime(), maxValTester);
+        }
         TopicSwitchTask task = new TopicSwitchTask();
         executor.execute(task);
     }

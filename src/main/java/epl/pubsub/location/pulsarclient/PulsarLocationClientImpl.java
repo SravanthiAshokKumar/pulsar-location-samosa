@@ -22,8 +22,9 @@ class PulsarLocationClientImpl implements PulsarLocationClient {
 
     private PulsarClient client;
     private PulsarAdmin adminClient;
-
+    
     private PulsarConfig config;
+    
     @Override
     public void initClient(PulsarConfig config){
         this.config = config;
@@ -90,4 +91,5 @@ class PulsarLocationClientImpl implements PulsarLocationClient {
     public String getTopicNamePrefix(){
         return config.topicType+"://" + config.namespace;
     }
+
 }
