@@ -131,6 +131,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
             lock.lock();
             newConsumerBuilder =  createConsumerBuilder(newTopics, subscriptionName, callback);
             newConsumer = newConsumerBuilder.subscribeAsync().get();
+            log.info("subbed");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
         }
@@ -141,11 +142,14 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     
     private void reclaimConsumer() {
         try {
-            currentConsumer.close();
+            lock.lock();
+            currentConsumer.closeAsync();
             currentConsumerBuilder = newConsumerBuilder;
             currentConsumer = newConsumer;
-        }catch(PulsarClientException ex){
+        }catch(Exception ex){
             ex.printStackTrace();
+        } finally{
+            lock.unlock();
         }
         
     }
