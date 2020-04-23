@@ -31,6 +31,19 @@ Now, these handle the subscription changes due to location changes transparently
 Index index = IndexFactory.getInitializedIndex(indexConfig.minX, indexConfig.minY, indexConfig.maxX, indexConfig.maxY, indexConfig.blockSize, IndexFactory.IndexType.GEOHASH, props);  
 LocationSubscriptionHandlerSingleTopicImpl producerHandler = new LocationSubscriptionHandlerSingleTopicImpl(index);  
 ```
-
+Finally, we need to monitor for location changes and feed those into the subscription handler. We can do it like this:  
+```java  
+LocationManager lm = new LocationManagerImpl(locationChangeInterval, trajectoryFile); 
+lm.initManager(producerHandler);  
+lm.start(); 
+```
+The trajectoryFile is basically the file path to the file representing movement of the publisher/subscriber. The format is as follows:  
+```csv  
+0.0,0.1
+0.1,0.2
+.
+.
+```
+A more complete working code can be found in [this](https://github.com/Manasvini/samosa-tester) repo. 
 
   
