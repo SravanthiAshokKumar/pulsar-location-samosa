@@ -24,7 +24,7 @@ To create a producer, follow a similar procedure
 ```java  
 PulsarLocationProducer producer = client.getNewProducer();  
 producer.start("testTopic");  
-producer.sendMessage(new String("test-message").getBytes();  
+producer.sendMessage(new String("test-message").getBytes());  
 ```   
 Now, these handle the subscription changes due to location changes transparently. We still need to create a `LocationSubscriptionHandler` to translate location change to topic change. The Handler takes in a spatial index found [here](https://github.com/Manasvini/indexPerf). This can be done for the producer as follows:  
 ```java  
