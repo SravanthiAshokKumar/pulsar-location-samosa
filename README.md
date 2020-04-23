@@ -44,6 +44,7 @@ The trajectoryFile is basically the file path to the file representing movement 
 .
 .
 ```
+Lastly, make sure Pulsar is up and running to test the code!  
 A more complete working code can be found in [this](https://github.com/Manasvini/samosa-tester) repo. 
 
   
