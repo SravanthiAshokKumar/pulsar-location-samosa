@@ -18,7 +18,7 @@ consumer.start("testTopic", new MessageCallback({
     public void onMessageReceived(Message<byte[]> message){    
       System.out.println("received message");  
     }  
-  }  
+  });  
 ```
 To create a producer, follow a similar procedure  
 ```java  
