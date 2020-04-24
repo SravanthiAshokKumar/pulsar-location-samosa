@@ -30,6 +30,7 @@ Now, these handle the subscription changes due to location changes transparently
 ```java  
 Index index = IndexFactory.getInitializedIndex(indexConfig.minX, indexConfig.minY, indexConfig.maxX, indexConfig.maxY, indexConfig.blockSize, IndexFactory.IndexType.GEOHASH, props);  
 LocationSubscriptionHandlerSingleTopicImpl producerHandler = new LocationSubscriptionHandlerSingleTopicImpl(index);  
+producerHandler.initSubscriptionChangedCallback(producer);
 ```
 Finally, we need to monitor for location changes and feed those into the subscription handler. We can do it like this:  
 ```java  
