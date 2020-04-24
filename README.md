@@ -1,7 +1,7 @@
 # pulsar-location-samosa
 Wrapper for Pulsar Client to handle subscription changes due to changes in location
 ## Introduction  
-This library uses the `PulsarClient` APIs underneath to perform pub/sub related operations. Configurations are written in YAML. The library provides a `LocationManager` interface to monitor for changes in location. The `LocationSubscriptionHandler` interface allows for location changes to be translated to topic changes.   
+This library uses the `PulsarClient` APIs underneath to perform pub/sub related operations. Configurations are written in YAML. The library provides a `LocationManager` interface to monitor for changes in location. The `LocationSubscriptionHandler` interface allows for location changes to be translated to topic changes. Decoupling location management from subscription management allows for easy extenstion to the `LocationManager` so that the subscription handler can be plugged into different sources of location change.   
 ## Building  
 ```shell  
 cd /path/to/pulsar-location-samosa  
