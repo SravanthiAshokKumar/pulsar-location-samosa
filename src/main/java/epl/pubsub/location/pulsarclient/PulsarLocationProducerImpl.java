@@ -120,11 +120,11 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
             reclaimProducer(); 
         }
     } 
-    private void switchTopic(String newTopic){
+    private void switchTopic(String topic){
         isTransitioning.set(true);
         try{
             lock.lock();
-            currentTopic = topicPrefix + "/" + newTopic;
+            currentTopic = topicPrefix + "/" + topic;
             newTopic = currentTopic;
             newProducerBuilder = createProducerBuilder();
             newProducer = newProducerBuilder.topic(newTopic).create();
