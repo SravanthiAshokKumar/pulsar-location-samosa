@@ -93,6 +93,7 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         try {
             currentProducer.flush();
             currentProducer.close();
+            executor.shutdown();
         } catch(PulsarClientException ex){
             System.out.println(ex.getMessage());
         }

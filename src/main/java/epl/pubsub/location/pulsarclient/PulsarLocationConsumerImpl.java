@@ -110,6 +110,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         } catch(PulsarClientException ex){
             System.out.println(ex.getMessage());
         }
+        executor.shutdown();
     }
 
     @Override
