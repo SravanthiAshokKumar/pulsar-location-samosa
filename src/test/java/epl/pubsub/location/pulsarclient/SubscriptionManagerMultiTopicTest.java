@@ -49,7 +49,8 @@ public class SubscriptionManagerMultiTopicTest
      */
    
     @Override 
-    public void onSubscriptionChange(List<String> oldTopics, List<String> newTopics){
+    public void onSubscriptionChange(List<String> oldTopics,
+                                     List<String> newTopics){
         received.set(true);
     }
 

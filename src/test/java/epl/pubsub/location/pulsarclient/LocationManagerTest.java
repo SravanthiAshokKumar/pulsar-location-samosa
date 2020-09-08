@@ -50,6 +50,7 @@ public class LocationManagerTest
     public void onLocationChange(Location oldLoc, Location newLoc){
         received.set(true);
     }
+
     public void testCreation()
     {
 
@@ -57,7 +58,8 @@ public class LocationManagerTest
             //Index index = IndexFactory.getInitializedIndex(33.7756, 84.3963, 34.7756, 85.3963, 0.01, IndexFactory.IndexType.GEOHASH, props);
      
             String locationFile = "data/output/0.0_0.txt";
-            LocationManager lm = new LocationManagerImpl(1, locationFile);
+            LocationManager lm = new LocationManagerImpl(1,
+                    locationFile);
             lm.initManager(this);
             lm.start();
             lm.monitorLocation();

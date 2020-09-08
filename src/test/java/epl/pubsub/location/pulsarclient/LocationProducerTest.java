@@ -43,7 +43,8 @@ public class LocationProducerTest
             String configFile = "pulsar.yaml";
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.findAndRegisterModules();
-            PulsarConfig pulsarConfig = mapper.readValue(new File(configFile), PulsarConfig.class);
+            PulsarConfig pulsarConfig = mapper.readValue(new File(configFile),
+                    PulsarConfig.class);
             PulsarLocationClient client = new PulsarLocationClientImpl();
             client.initClient(pulsarConfig);
         

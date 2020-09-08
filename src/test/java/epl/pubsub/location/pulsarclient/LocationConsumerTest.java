@@ -56,28 +56,27 @@ public class LocationConsumerTest
     public void testCreation()
     {
         try{
-            System.out.println("in test");
             String configFile = "pulsar.yaml";
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.findAndRegisterModules();
-            PulsarConfig pulsarConfig = mapper.readValue(new File(configFile), PulsarConfig.class);
+            PulsarConfig pulsarConfig = mapper.readValue(new File(configFile),
+                    PulsarConfig.class);
             PulsarLocationClient client = new PulsarLocationClientImpl();
             client.initClient(pulsarConfig);
-        
+
             PulsarLocationProducer producer = client.getNewProducer();
-            producer.start("test");
-            producer.sendMessage(testPayload.getBytes());
-//            producer.shutdown(); 
+            producer.start("test");  
             PulsarLocationConsumer consumer  = client.getNewConsumer();
             List<String> topics = new ArrayList<>();
             topics.add("test");
             consumer.start(topics, "testSub", this);
-            while(received.get() == false){
+            producer.sendMessage(testPayload.getBytes());
+            producer.shutdown();
+            while (received.get() == false) {
                 Thread.sleep(10);
             }
             consumer.shutdown();
 
-                       
         }
         catch(IOException ex){
             System.out.println(ex.getMessage());

@@ -28,6 +28,7 @@ public class LocationSubscriptionHandlerMultiTopicImpl implements  LocationSubsc
         log.info("multi topic location change");
         List<String> oldTopics = index.getNearestNeighbors(oldLocation.x, oldLocation.y);
         List<String> newTopics = index.getNearestNeighbors(newLocation.x, newLocation.y);
+        log.info(oldLocation.x+ "|" +oldLocation.y + "|" + newLocation.x+ "|" + newLocation.y);
         log.info(Arrays.toString(oldTopics.toArray())+ "|" +Arrays.toString(newTopics.toArray()));
         if(!oldTopics.equals(newTopics)){
             log.info("making sub change");

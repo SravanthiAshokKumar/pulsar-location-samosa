@@ -67,17 +67,24 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         log.info("disabled metrics");
     }
 
-    private ConsumerBuilder createConsumerBuilder(List<String> topics, String subscriptionName, MessageCallback cb) {
+    private ConsumerBuilder createConsumerBuilder(List<String> topics,
+                                                  String subscriptionName,
+                                                  MessageCallback cb) {
         List<String> topicsToConsume = new ArrayList<>();
-        for(String topic: topics){
+        for(String topic: topics) {
             topicsToConsume.add(topicPrefix + "/" + topic);
         }
-        ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().subscriptionType(SubscriptionType.Failover).messageListener((consumer, msg) ->{
+        ConsumerBuilder<byte[]> consumerBuilder = client.newConsumer().
+                subscriptionType(SubscriptionType.Failover).
+                messageListener((consumer, msg) -> {
             if(!disableMetrics){
                 consumerMetrics.numMessagesConsumed.getAndIncrement();
-                long latency = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis() - msg.getPublishTime()) / 1000;
-                consumerMetrics.aggregateEndToEndLatency.getAndAccumulate(latency, latencyAccumulator);
-                consumerMetrics.maxEndToEndLatency.getAndAccumulate(latency, maxValTester);
+                long latency = TimeUnit.MILLISECONDS.toMicros(
+                        System.currentTimeMillis() - msg.getPublishTime()) / 1000;
+                consumerMetrics.aggregateEndToEndLatency.getAndAccumulate(
+                        latency, latencyAccumulator);
+                consumerMetrics.maxEndToEndLatency.getAndAccumulate(
+                        latency, maxValTester);
             }
             consumer.acknowledgeAsync(msg);
             cb.onMessageReceived(msg);
@@ -85,9 +92,11 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
 
         return consumerBuilder;
     }
-    
+
     @Override
-    public void start(List<String> topics, String subscriptionName, MessageCallback cb){
+    public void start(List<String> topics,
+                      String subscriptionName,
+                      MessageCallback cb){
         currentTopics = topics;
         newTopics = topics;
         callback = cb;
@@ -131,9 +140,9 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
     private class TopicSwitchTask implements Runnable {
         @Override
         public void run() {
-            reclaimConsumer(); 
+            reclaimConsumer();
         }
-    } 
+    }
 
     private void switchTopic(List<String> newTopics){
         try{
@@ -148,7 +157,7 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
             lock.unlock();
         }
     }
-    
+
     private void reclaimConsumer() {
         try {
             lock.lock();
@@ -160,9 +169,9 @@ class PulsarLocationConsumerImpl implements PulsarLocationConsumer {
         } finally{
             lock.unlock();
         }
-        
+
     }
-    
+
     @Override
     public ConsumerMetrics getConsumerMetrics(){
         return consumerMetrics;

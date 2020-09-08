@@ -80,7 +80,7 @@ class PulsarLocationProducerImpl implements  PulsarLocationProducer{
         currentTopic = topicPrefix + "/" + topic;
         newTopic = currentTopic;
         try {
-            currentProducer = currentProducerBuilder.topic(topic).create();
+            currentProducer = currentProducerBuilder.topic(currentTopic).create();
             newProducerBuilder = currentProducerBuilder;
             newProducer = currentProducer;
         }catch(PulsarClientException ex){
